@@ -2,23 +2,31 @@ use chess::board::*;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
+#[derive(PartialEq)]
+enum ToMove {
+    White,
+    Black
+}
+
+static TO_MOVE: ToMove = ToMove::White;
+static TURN: i32 = 1;
+static USE_COORDS: bool = false;
+
 fn main() -> Result<()> {
-    // `()` can be used when no completer is required
+    //(ext) `()` can be used when no completer is required
     let mut rl = DefaultEditor::new()?;
-    #[cfg(feature = "with-file-history")]
-    if rl.load_history("history.txt").is_err() {
-        println!("No previous history.");
-    }
     loop {
-        let readline = rl.readline(">> ");
+        let prompt = if TO_MOVE == ToMove::White {
+            format!("White ({}) : ", TURN)
+        } else {
+            format!("Black ({}) : ", TURN)
+        };
+        let readline = rl.readline(&prompt);
         match readline {
-            Ok(line) => {
-                rl.add_history_entry(line.as_str())?;
-                println!("Line: {}", line);
-            },
+            /* guard cases */
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
-                break
+                continue
             },
             Err(ReadlineError::Eof) => {
                 println!("CTRL-D");
@@ -28,9 +36,14 @@ fn main() -> Result<()> {
                 println!("Error: {:?}", err);
                 break
             }
+            /***/
+            Ok(line) => {
+                rl.add_history_entry(line.as_str())?;
+                match line {
+                    _ => {println!("Line: {}", line);}
+                }
+            },
         }
     }
-    #[cfg(feature = "with-file-history")]
-    rl.save_history("history.txt");
     Ok(())
 }
