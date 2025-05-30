@@ -1,10 +1,10 @@
 pub struct Board([char; 64]);
 
-impl std::ops::Index<usize> for Board
+impl<I> std::ops::Index<I> for Board
 {
     type Output = char;
 
-    fn index(&self, index: usize) -> &Self::Output {
+    fn index(&self, index: I) -> &Self::Output {
         &self.0[index]
     }
 }
@@ -63,15 +63,18 @@ impl std::fmt::Display for Board {
         for (i, squares) in board_printable {
             let rank: i8 = (i as i8 - 8).abs();
             write!(f, "{rank}")?;
-            squares
-                .iter()
-                .for_each(|sq| match write!(f, " {sq}") {
-                    Err(_) => panic!("bad display somehow, idfk"),
-                    _ => ()
-                });
+//            squares
+//                .iter()
+//                .for_each(|sq| match write!(f, " {sq}") {
+//                    Err(_) => panic!("bad display somehow, idfk"),
+//                    _ => ()
+//                });
+            for sq in squares {
+                write!(f, " {sq}")?;
+            }
             write!(f, "\n")?;
         }
-        write!(f, "  a b c d e f g h")
+        write!(f, "  a b c d e f g h\n")
     }
 }
 
@@ -108,3 +111,26 @@ mod tests {
         ]);
     }
 }
+
+type GameTurn = (&str, Option<&str>);
+type GameHistory = Vec<GameMove>;
+
+impl GameHistory {
+    fn get_turn(&self, turn: u8) -> GameTurn {
+        if turn > self.len() {
+            return None;
+        }
+
+        self[turn-1]
+    }
+    fn push_turn(&self, new_turn: GameTurn) {
+        // TODO
+    }
+}
+
+#[derive(PartialEq)]
+enum ToMove {
+    White,
+    Black
+}
+

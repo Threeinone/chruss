@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 rustyline = "16.0.0"
+clap = "4.5.39"

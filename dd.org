@@ -1,17 +1,28 @@
 #+TITLE: Design Document for Chess Program
 
 * Main
+
 at main entrypoint, need to make new chess board and begin the gameplay loop.
 
 1. prompt with white's first turn and wait for input
 2. receive input and decide what to do with it
 3. if input advances the game, print new board state and prompt black's
 first turn
+... and repeat
 
 ** Valid Inputs
 - chess moves
-- 'coords'
-  toggles whether to display board with coords on
+  - in algebraic chess notation
 - pgn manipulations
   - save or load a pgn file
+- show commands
+  - show the board again, game takes, or game history
 
+
+* Engine
+
+handles game logic
+
+* Pgn
+
+handles the PGN file format
