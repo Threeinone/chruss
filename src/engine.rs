@@ -1,6 +1,10 @@
+use std::slice::SliceIndex;
+use std::ops::Index;
+
 pub struct Board([char; 64]);
 
-impl<I> std::ops::Index<I> for Board
+impl<I> Index<I> for Board
+where I: SliceIndex<[char], Output = char>,
 {
     type Output = char;
 
@@ -12,14 +16,14 @@ impl<I> std::ops::Index<I> for Board
 impl Board {
     pub fn new() -> Self {
         Board([
-            'r','n','b','q','k','b','n','r',
-            'p','p','p','p','p','p','p','p',
-            '.','.','.','.','.','.','.','.',
-            '.','.','.','.','.','.','.','.',
-            '.','.','.','.','.','.','.','.',
-            '.','.','.','.','.','.','.','.',
-            'P','P','P','P','P','P','P','P',
             'R','N','B','Q','K','B','N','R',
+            'P','P','P','P','P','P','P','P',
+            '.','.','.','.','.','.','.','.',
+            '.','.','.','.','.','.','.','.',
+            '.','.','.','.','.','.','.','.',
+            '.','.','.','.','.','.','.','.',
+            'p','p','p','p','p','p','p','p',
+            'r','n','b','q','k','b','n','r',
         ])
     }
     pub fn files(&self) -> Vec<Vec<char>> {
@@ -40,6 +44,7 @@ impl Board {
     }
 }
 
+/*
 pub fn print_board(board: Board, show_coords: bool) {
     let board_printable = board.ranks().into_iter().enumerate();
     for (i, squares) in board_printable {
@@ -56,19 +61,23 @@ pub fn print_board(board: Board, show_coords: bool) {
         println!("  a b c d e f g h");
     }
 }
+*/
 
+// FIXME: I just reversed the board's ordering, so this will be wrong
 impl std::fmt::Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let board_printable = self.ranks().into_iter().enumerate();
         for (i, squares) in board_printable {
             let rank: i8 = (i as i8 - 8).abs();
             write!(f, "{rank}")?;
-//            squares
-//                .iter()
-//                .for_each(|sq| match write!(f, " {sq}") {
-//                    Err(_) => panic!("bad display somehow, idfk"),
-//                    _ => ()
-//                });
+            /*
+            squares
+                .iter()
+                .for_each(|sq| match write!(f, " {sq}") {
+                    Err(_) => panic!("bad display somehow, idfk"),
+                    _ => ()
+                });
+            */
             for sq in squares {
                 write!(f, " {sq}")?;
             }
@@ -90,15 +99,16 @@ mod tests {
     fn ranks_and_files() {
         let board = Board::new();
         assert_eq!(board.ranks(), [
-            ['r','n','b','q','k','b','n','r'],
-            ['p','p','p','p','p','p','p','p'],
-            ['.','.','.','.','.','.','.','.'],
-            ['.','.','.','.','.','.','.','.'],
-            ['.','.','.','.','.','.','.','.'],
-            ['.','.','.','.','.','.','.','.'],
-            ['P','P','P','P','P','P','P','P'],
             ['R','N','B','Q','K','B','N','R'],
+            ['P','P','P','P','P','P','P','P'],
+            ['.','.','.','.','.','.','.','.'],
+            ['.','.','.','.','.','.','.','.'],
+            ['.','.','.','.','.','.','.','.'],
+            ['.','.','.','.','.','.','.','.'],
+            ['p','p','p','p','p','p','p','p'],
+            ['r','n','b','q','k','b','n','r'],
         ]);
+        // FIXME: the pieces are backwards now
         assert_eq!(board.files(), [
             ['r','p','.','.','.','.','P','R'],
             ['n','p','.','.','.','.','P','N'],
@@ -112,24 +122,36 @@ mod tests {
     }
 }
 
-type GameTurn = (&str, Option<&str>);
-type GameHistory = Vec<GameMove>;
+pub struct GameTurn( pub String, pub Option<String> );
+pub struct GameHistory(Vec<GameTurn>);
+
+impl GameTurn {
+
+    pub fn from(white_move: String, black_move: Option<String>) -> Self {
+        GameTurn(white_move, black_move)
+    }
+}
 
 impl GameHistory {
-    fn get_turn(&self, turn: u8) -> GameTurn {
-        if turn > self.len() {
+
+    pub fn new() -> Self {
+        GameHistory(Vec::new())
+    }
+
+    pub fn get_turn<I>(&self, turn: usize) -> Option<&GameTurn> {
+        if turn > self.0.len() {
             return None;
         }
 
-        self[turn-1]
+        Some(&self.0[turn-1])
     }
-    fn push_turn(&self, new_turn: GameTurn) {
-        // TODO
+    pub fn push_turn(&mut self, new_turn: GameTurn) {
+        self.0.push(new_turn);
     }
 }
 
 #[derive(PartialEq)]
-enum ToMove {
+pub enum ToMove {
     White,
     Black
 }

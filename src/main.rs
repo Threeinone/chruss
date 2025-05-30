@@ -1,9 +1,9 @@
 use chess::engine::*;
-use chess::pgn::*
+use chess::pgn::*;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
-const HELPSTRING: &str = "Invalid move. use \"help\" for a list of valid commands."
+const HELPSTRING: &str = "Invalid move. use \"help\" for a list of valid commands.";
 
 fn main() -> Result<()> {
     //(ext) `()` can be used when no completer is required
